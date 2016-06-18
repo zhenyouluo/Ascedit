@@ -28,24 +28,10 @@ set(PROJECT_WEBSITE "https://github.com/mbasaglia/Ascedit")
 set(PROJECT_VERSION_LONG ${PROJECT_VERSION})
 set(ICON_PATH "")
 
-# C++ Standard
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(cmake/misc.cmake)
 
-if(${CMAKE_VERSION} LESS 3.2)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
-        include(CheckCXXCompilerFlag)
-        check_cxx_compiler_flag(--std=c++${CMAKE_CXX_STANDARD} STD_CXX)
-        if(STD_CXX)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++${CMAKE_CXX_STANDARD}")
-        else()
-            message(SEND_ERROR "Requires C++${CMAKE_CXX_STANDARD} or better")
-        endif()
-    else()
-        message(WARNING "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}, make sure it supports C++${CMAKE_CXX_STANDARD}")
-    endif()
-endif()
+# C++ Standard
+use_cxx_standard(14)
 
 # Debug flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic -Werror")
@@ -72,63 +58,27 @@ endif()
 
 add_subdirectory(src bin)
 
+# Tests
+include(cmake/testing.cmake)
+add_subdirectory(test)
+
 # Find all sources for documentation and stuff
 set(ALL_SOURCE_DIRECTORIES src)
 
-function(find_sources output_var)
-    set(all_files)
-    foreach(pattern ${ARGN})
-        file(GLOB_RECURSE files "${ALL_SOURCE_DIRECTORIES}/${pattern}")
-        list(APPEND all_files ${files})
-    endforeach()
-    set(${output_var} ${all_files} PARENT_SCOPE)
-endfunction()
 
 find_sources(ALL_SOURCES *.cpp *.hpp)
 
-# Doxygen target
 find_package(Doxygen QUIET)
 if(DOXYGEN_FOUND)
-    set(DOXYGEN_OUTPUT "\"${CMAKE_BINARY_DIR}/doc\"")
-
-    set(DOXYGEN_INPUT "")
-    find_sources(DOXYGEN_INPUT_FILES "*.dox")
-    set(DOXYGEN_INPUT_FILES ${DOXYGEN_INPUT_FILES} ${ALL_SOURCES})
-    foreach(source ${DOXYGEN_INPUT_FILES})
-        set(DOXYGEN_INPUT "${DOXYGEN_INPUT} \"${source}\"")
-    endforeach()
-
-    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile)
-    add_custom_target(doc
-        ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-        DEPENDS ${PROJECT_BINARY_DIR}/Doxyfile ${DOXYGEN_INPUT_FILES}
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        COMMENT "Generating Doxygen Documentation" VERBATIM
-    )
-    add_custom_target(doc-view
-        xdg-open ${DOXYGEN_OUTPUT}/html/index.html
-        COMMENT "Showing Doxygen documentation"
-    )
+    create_doxygen_target(doc)
 endif(DOXYGEN_FOUND)
 
 # Translation
-find_package(Qt5LinguistTools QUIET)
-if(Qt5LinguistTools_FOUND)
-    set(TRANSLATIONS
-        translations/it_IT.ts
-    )
-    foreach(TRANSLATION ${TRANSLATIONS})
-        set(TS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${TRANSLATION}")
-        set_source_files_properties(${TS_FILE} PROPERTIES
-            OUTPUT_LOCATION
-            "${CMAKE_BINARY_DIR}/share/${EXECUTABLE_NAME}/translations")
-    endforeach()
-    find_sources(UI_FILES *.ui)
-    set(TRANSLATABLE ${ALL_SOURCES} ${UI_FILES})
-    qt5_create_translation(QM_FILES ${TRANSLATIONS} ${TRANSLATABLE})
-    add_custom_target(translations DEPENDS ${QM_FILES})
-    # TODO: check installation
-endif()
+include(cmake/qt.cmake)
+create_qt_linguist_translations(
+    translations
+    translations/it_IT.ts
+)
 
 # Package generation
 find_program(DPKG_PROGRAM dpkg)
