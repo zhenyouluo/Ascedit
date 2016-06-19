@@ -192,3 +192,24 @@ BOOST_AUTO_TEST_CASE( test_lab )
 
     #undef check
 }
+
+BOOST_AUTO_TEST_CASE( test_distance )
+{
+    Color a(71, 92, 43);
+    Color b(73, 92, 43);
+    Color c(74, 92, 43);
+    Color d(67, 103, 28);
+    Color e(129, 92, 43);
+    BOOST_CHECK_SMALL(a.distance(a), 0.01f);
+    BOOST_CHECK_LT(a.distance(b), a.distance(c));
+    BOOST_CHECK_LT(a.distance(d), a.distance(e));
+}
+
+BOOST_AUTO_TEST_CASE( test_blend )
+{
+    Color a(10, 20, 30, 0);
+    Color b(110, 120, 130);
+    BOOST_CHECK_EQUAL(a.blend(b), Color(60, 70, 80, 128));
+    BOOST_CHECK_EQUAL(a.blend(b, 0), a);
+    BOOST_CHECK_EQUAL(a.blend(b, 1), b);
+}

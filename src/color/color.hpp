@@ -25,6 +25,7 @@
 #include <string>
 #include <ostream>
 #include "melanolib/math/math.hpp"
+#include "melanolib/math/vector.hpp"
 
 namespace color {
 
@@ -69,6 +70,8 @@ struct RGBf
     float r, g, b;
 
     constexpr RGBf(float r, float g, float b) : r(r), g(g), b(b) {}
+    constexpr RGBf(const melanolib::math::Vec3f& v) : r(v[0]), g(v[1]), b(v[2]) {}
+    constexpr melanolib::math::Vec3f vec() const { return {r, g, b}; }
 };
 
 /**
@@ -81,6 +84,8 @@ struct HSVf
     float h, s, v;
 
     constexpr HSVf(float h, float s, float v) : h(h), s(s), v(v) {}
+    constexpr HSVf(const melanolib::math::Vec3f& v) : h(v[0]), s(v[1]), v(v[2]) {}
+    constexpr melanolib::math::Vec3f vec() const { return {h, s, v}; }
 };
 
 /**
@@ -93,6 +98,8 @@ struct Lab
     float l, a, b;
 
     constexpr Lab(float l, float a, float b) : l(l), a(a), b(b) {}
+    constexpr Lab(const melanolib::math::Vec3f& v) : l(v[0]), a(v[1]), b(v[2]) {}
+    constexpr melanolib::math::Vec3f vec() const { return {l, b, b}; }
 };
 
 /**
@@ -105,6 +112,8 @@ struct XYZ
     float x, y, z;
 
     constexpr XYZ(float x, float y, float z) : x(x), y(y), z(z) {}
+    constexpr XYZ(const melanolib::math::Vec3f& v) : x(v[0]), y(v[1]), z(v[2]) {}
+    constexpr melanolib::math::Vec3f vec() const { return {x, y, z}; }
 };
 
 } // namespace repr
@@ -161,6 +170,15 @@ public:
         return _valid;
     }
 
+    constexpr float alpha_float() const
+    {
+        return _alpha / 255.f;
+    }
+
+    /**
+     * \brief Convert the color to a different color sace
+     * \note This operation is only defined for valid colors
+     */
     template<class Repr>
         Repr to() const;
 
@@ -197,6 +215,22 @@ public:
                   << int(color._alpha) << ")";
     }
 
+    /**
+     * \brief Distance between two colors
+     * Uses Lab color space to determine the distance
+     * \note This operation is only defined for valid colors
+     */
+    float distance(const Color& oth) const;
+
+    template<class Repr=repr::RGBf>
+        constexpr Color blend(const Color& oth, float factor = 0.5) const
+    {
+        using namespace melanolib::math;
+        return Color(
+            Repr(linear_interpolation(to<Repr>().vec(), oth.to<Repr>().vec(), factor)),
+            linear_interpolation(alpha_float(), oth.alpha_float(), factor)
+        );
+    }
 
 private:
     template<class Repr>
@@ -363,6 +397,23 @@ template<>
         500 * (relative.x - relative.y),
         200 * (relative.y - relative.z)
     };
+}
+
+/**
+ * \brief CIE76 Delta-E distance between two Lab colors
+ */
+inline float delta_e(const repr::Lab& a, const repr::Lab& b)
+{
+    return melanolib::math::sqrt(
+        melanolib::math::pow(a.l - b.l, 2) +
+        melanolib::math::pow(a.a - b.a, 2) +
+        melanolib::math::pow(a.b - b.b, 2)
+    );
+}
+
+inline float Color::distance(const Color& oth) const
+{
+    return delta_e(to<repr::Lab>(), oth.to<repr::Lab>());
 }
 
 } // namespace color
