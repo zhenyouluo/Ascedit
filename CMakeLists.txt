@@ -56,9 +56,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     endif()
 endif()
 
+include_directories(lib/Melanolib/include)
+include_directories(src)
 add_subdirectory(src bin)
 
 # Tests
+set(LCOV_SOURCE_BASE_DIR "${CMAKE_SOURCE_DIR}/src")
 include(cmake/testing.cmake)
 add_subdirectory(test)
 

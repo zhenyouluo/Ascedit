@@ -15,8 +15,6 @@
 include(CTest)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address --coverage -O0 -fno-inline")
-include_directories("${CMAKE_SOURCE_DIR}/modules")
-
 
 # Boost
 find_package (Boost COMPONENTS unit_test_framework QUIET)
@@ -33,6 +31,11 @@ if (BUILD_TESTING)
     message(STATUS "Test targets enabled")
     enable_testing()
 
+    # Example:
+    # melanotest(test_foo
+    #     ${CMAKE_SOURCE_DIR}/extra_file.cpp
+    # )
+    # target_link_libraries(test_foo some_library)
     function(melanotest test_name)
         add_executable(${test_name} EXCLUDE_FROM_ALL ${test_name}.cpp ${ARGN})
         target_link_libraries(${test_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -41,9 +44,5 @@ if (BUILD_TESTING)
     endfunction(melanotest)
 
 
-    # melanotest(test_foo
-    #     ${CMAKE_SOURCE_DIR}file.cpp
-    # )
-    # target_link_libraries(test_foo some_library)
-
+    melanotest(test_color)
 endif()
