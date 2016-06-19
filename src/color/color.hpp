@@ -289,5 +289,37 @@ template<>
     };
 }
 
+template<>
+    constexpr repr::HSVf Color::to<repr::HSVf>() const
+{
+    auto rgbf = to<repr::RGBf>();
+
+    auto cmax = melanolib::math::max(rgbf.r, rgbf.g, rgbf.b);
+    auto cmin = melanolib::math::min(rgbf.r, rgbf.g, rgbf.b);
+    float h = 0;
+    auto delta = cmax - cmin;
+
+    if ( delta > 0 )
+    {
+
+        if ( cmax == rgbf.r )
+            h = rgbf.g - rgbf.b / delta;
+        else if ( cmax == rgbf.g )
+            h = (rgbf.b - rgbf.r) / delta + 2;
+        else // cmax == b
+            h = (rgbf.r - rgbf.g) / delta + 4;
+
+        if ( h < 0 )
+            h = 6 + h;
+    }
+
+    h /= 6;
+    auto s = cmax > 0 ? delta / cmax : 0;
+    auto v = cmax;
+
+    return {h, s, v};
+}
+
+
 } // namespace color
 #endif // MELANO_COLOR_HPP

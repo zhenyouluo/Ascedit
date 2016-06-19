@@ -118,6 +118,16 @@ BOOST_AUTO_TEST_CASE( test_from_rgbf )
     BOOST_CHECK_EQUAL( c.blue(), 255 );
 }
 
+BOOST_AUTO_TEST_CASE( test_to_rgbf )
+{
+    double tolerance = 1; // Tolerance percentage
+    repr::RGBf start(0, 0.5, 1);
+    repr::RGBf converted = Color(start).to<repr::RGBf>();
+    BOOST_CHECK_CLOSE( start.r, converted.r, tolerance );
+    BOOST_CHECK_CLOSE( start.g, converted.g, tolerance );
+    BOOST_CHECK_CLOSE( start.b, converted.b, tolerance );
+}
+
 BOOST_AUTO_TEST_CASE( test_from_hsvf )
 {
     BOOST_CHECK_EQUAL(Color(repr::HSVf(0, 0, 0)), Color(0, 0, 0));
@@ -138,3 +148,28 @@ BOOST_AUTO_TEST_CASE( test_from_hsvf )
     BOOST_CHECK_EQUAL(Color(repr::HSVf(5/6.0, 1, 1)), Color(255, 0, 255));
     BOOST_CHECK_EQUAL(Color(repr::HSVf(6/6.0, 1, 1)), Color(255, 0, 0));
 }
+
+BOOST_AUTO_TEST_CASE( test_to_hsvf )
+{
+    double tolerance = 1; // Tolerance percentage
+#define check(rgb, expected_hsv) \
+    { \
+        auto converted = rgb.to<repr::HSVf>(); \
+        BOOST_CHECK_CLOSE( converted.h, expected_hsv.h, tolerance ); \
+        BOOST_CHECK_CLOSE( converted.s, expected_hsv.s, tolerance ); \
+        BOOST_CHECK_CLOSE( converted.v, expected_hsv.v, tolerance ); \
+    }
+
+    check(Color(255, 0, 0), repr::HSVf(0/6.0, 1, 1));
+    check(Color(255, 255, 0), repr::HSVf(1/6.0, 1, 1));
+    check(Color(0, 255, 0), repr::HSVf(2/6.0, 1, 1));
+    check(Color(0, 255, 255), repr::HSVf(3/6.0, 1, 1));
+    check(Color(0, 0, 255), repr::HSVf(4/6.0, 1, 1));
+    check(Color(255, 0, 255), repr::HSVf(5/6.0, 1, 1));
+
+    check(Color(255, 255, 255), repr::HSVf(0, 0, 1));
+    check(Color(0, 0, 0), repr::HSVf(0, 0, 0));
+
+#undef check
+}
+
