@@ -152,7 +152,9 @@ BOOST_AUTO_TEST_CASE( test_from_hsvf )
 BOOST_AUTO_TEST_CASE( test_to_hsvf )
 {
     double tolerance = 1; // Tolerance percentage
-#define check(rgb, expected_hsv) \
+
+    // Macro to preserve line numbers and stuff
+    #define check(rgb, expected_hsv) \
     { \
         auto converted = rgb.to<repr::HSVf>(); \
         BOOST_CHECK_CLOSE( converted.h, expected_hsv.h, tolerance ); \
@@ -170,6 +172,23 @@ BOOST_AUTO_TEST_CASE( test_to_hsvf )
     check(Color(255, 255, 255), repr::HSVf(0, 0, 1));
     check(Color(0, 0, 0), repr::HSVf(0, 0, 0));
 
-#undef check
+    #undef check
 }
 
+BOOST_AUTO_TEST_CASE( test_lab )
+{
+    double tolerance = 1.1; // Tolerance percentage
+    #define check(rgb, expected) \
+    { \
+        auto converted = rgb.to<repr::Lab>(); \
+        BOOST_CHECK_CLOSE( converted.l + 1, expected.l + 1, tolerance ); \
+        BOOST_CHECK_CLOSE( converted.a + 1, expected.a + 1, tolerance ); \
+        BOOST_CHECK_CLOSE( converted.b + 1, expected.b + 1, tolerance ); \
+    }
+
+    check(Color(0, 0, 0), repr::Lab(0, 0, 0));
+    check(Color(255, 0, 0), repr::Lab(53, 80, 67));
+    check(Color(255, 255, 255), repr::Lab(100, 0, 0));
+
+    #undef check
+}

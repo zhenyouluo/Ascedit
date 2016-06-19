@@ -320,6 +320,50 @@ template<>
     return {h, s, v};
 }
 
+template<>
+    repr::XYZ Color::to<repr::XYZ>() const
+{
+    auto rgbf = to<repr::RGBf>();
+
+    auto conv = [](float v)
+    {
+        return v > 0.04045 ? melanolib::math::pow((v + 0.055) / 1.055, 2.4) : v / 12.92;
+    };
+
+    rgbf.r = conv(rgbf.r) * 100;
+    rgbf.g = conv(rgbf.g) * 100;
+    rgbf.b = conv(rgbf.b) * 100;
+
+    return {
+        rgbf.r * 0.4124f + rgbf.g * 0.3576f + rgbf.b * 0.1805f,
+        rgbf.r * 0.2126f + rgbf.g * 0.7152f + rgbf.b * 0.0722f,
+        rgbf.r * 0.0193f + rgbf.g * 0.1192f + rgbf.b * 0.9505f
+    };
+}
+
+template<>
+    repr::Lab Color::to<repr::Lab>() const
+{
+    auto source = to<repr::XYZ>();
+
+    repr::XYZ ref{95.047, 100.000, 108.883};
+
+    auto conv = [](float v) -> float
+    {
+        return v > 0.008856 ? melanolib::math::pow(v, 1.0 / 3) : 7.787 * v + 16.0 / 116;
+    };
+
+    repr::XYZ relative{
+        conv(source.x / ref.x),
+        conv(source.y / ref.y),
+        conv(source.z / ref.z),
+    };
+    return {
+        (116 * relative.y) - 16,
+        500 * (relative.x - relative.y),
+        200 * (relative.y - relative.z)
+    };
+}
 
 } // namespace color
 #endif // MELANO_COLOR_HPP
