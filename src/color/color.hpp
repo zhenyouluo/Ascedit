@@ -116,8 +116,47 @@ struct XYZ
     constexpr melanolib::math::Vec3f vec() const { return {x, y, z}; }
 };
 
-} // namespace repr
+struct RGB_int24
+{
+    int32_t rgb;
+    constexpr RGB_int24(int32_t rgb) : rgb(rgb) {}
 
+    constexpr int32_t rgba(uint8_t alpha = 255) const
+    {
+        return (rgb << 8) | alpha;
+    }
+
+    constexpr int32_t argb(uint8_t alpha = 255) const
+    {
+        return (alpha << 24) | rgb;
+    }
+};
+
+struct RGB_int12
+{
+    uint16_t rgb;
+    constexpr RGB_int12(uint16_t rgb) : rgb(rgb) {}
+
+    constexpr uint16_t rgba(uint8_t alpha = 0xf) const
+    {
+        return (rgb << 4) | alpha;
+    }
+
+    constexpr uint16_t argb(uint8_t alpha = 0xf) const
+    {
+        return (alpha << 12) | rgb;
+    }
+};
+
+struct RGB_int3
+{
+    uint8_t rgb;
+    bool bright;
+    constexpr RGB_int3(uint8_t rgb, bool bright = false)
+        : rgb(rgb), bright(bright) {}
+};
+
+} // namespace repr
 
 class Color
 {
@@ -314,6 +353,46 @@ template<>
 }
 
 template<>
+    constexpr void Color::from<repr::RGB_int24>(repr::RGB_int24 value)
+{
+    _rgb.r = (value.rgb >> 16) & 0xff;
+    _rgb.g = (value.rgb >> 8) & 0xff;
+    _rgb.b = value.rgb & 0xff;
+}
+
+template<>
+    constexpr void Color::from<repr::RGB_int12>(repr::RGB_int12 value)
+{
+    _rgb.r = (value.rgb >> 8) & 0xf;
+    _rgb.r = _rgb.r | (_rgb.r << 4);
+    _rgb.g = (value.rgb >> 4) & 0xf;
+    _rgb.g = _rgb.g | (_rgb.g << 4);
+    _rgb.b = value.rgb & 0xf;
+    _rgb.b = _rgb.b | (_rgb.b << 4);
+}
+
+template<>
+    constexpr void Color::from<repr::RGB_int3>(repr::RGB_int3 value)
+{
+    if ( value.rgb == 0b000 )
+    {
+        _rgb.r = _rgb.g = _rgb.b = value.bright ? 70 : 0;
+    }
+    else if ( value.rgb == 0b111 )
+    {
+        _rgb.r = _rgb.g = _rgb.b = value.bright ? 255 : 136;
+    }
+    else
+    {
+        uint8_t val = value.bright ? 255 : 128;
+        _rgb.r = (value.rgb & 1) ? val : 0;
+        _rgb.g = (value.rgb & 2) ? val : 0;
+        _rgb.b = (value.rgb & 4) ? val : 0;
+    }
+}
+
+
+template<>
     constexpr repr::RGBf Color::to<repr::RGBf>() const
 {
     return {
@@ -398,6 +477,56 @@ template<>
         200 * (relative.y - relative.z)
     };
 }
+
+template<>
+    constexpr repr::RGB_int24 Color::to<repr::RGB_int24>() const
+{
+    return repr::RGB_int24((_rgb.r << 16) | (_rgb.g << 8) | _rgb.b);
+}
+
+template<>
+    constexpr repr::RGB_int12 Color::to<repr::RGB_int12>() const
+{
+    return repr::RGB_int12(
+        ((_rgb.r & 0xf0) << 4) |
+        (_rgb.g & 0xf0 ) |
+        ((_rgb.b & 0xf0) >> 4)
+    );
+}
+
+template<>
+    repr::RGB_int3 Color::to<repr::RGB_int3>() const
+{
+    auto hsv = to<repr::HSVf>();
+
+    if ( hsv.s >= 0.3 )
+    {
+        float hue = hsv.h * 6;
+
+        uint8_t color = 0;
+
+        if ( hue <= 0.5 )      color = 0b001; // red
+        else if ( hue <= 1.5 ) color = 0b011; // yellow
+        else if ( hue <= 2.5 ) color = 0b010; // green
+        else if ( hue <= 3.5 ) color = 0b110; // cyan
+        else if ( hue <= 4.5 ) color = 0b100; // blue
+        else if ( hue <= 5.5 ) color = 0b101; // magenta
+        else                   color = 0b001; // red
+
+        return repr::RGB_int3(color, hsv.v > 0.6);
+    }
+
+    if ( hsv.v > 0.8 )
+        return repr::RGB_int3(0b111, true); // white
+    else if ( hsv.v > 0.5 )
+        return repr::RGB_int3(0b111, false); // silver
+    else if ( hsv.v > 0.25 )
+        return repr::RGB_int3(0b000, true); // gray
+    else
+        return repr::RGB_int3(0b000, false); // black
+
+}
+
 
 /**
  * \brief CIE76 Delta-E distance between two Lab colors

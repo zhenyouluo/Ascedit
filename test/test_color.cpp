@@ -213,3 +213,76 @@ BOOST_AUTO_TEST_CASE( test_blend )
     BOOST_CHECK_EQUAL(a.blend(b, 0), a);
     BOOST_CHECK_EQUAL(a.blend(b, 1), b);
 }
+
+BOOST_AUTO_TEST_CASE( test_rgb_int24 )
+{
+    BOOST_CHECK_EQUAL(Color(0x12, 0x23, 0x34).to<repr::RGB_int24>().rgb, 0x122334);
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int24(0x122334)), Color(0x12, 0x23, 0x34));
+    BOOST_CHECK_EQUAL(repr::RGB_int24(0x122334).rgba(), 0x122334ff);
+    BOOST_CHECK_EQUAL(repr::RGB_int24(0x122334).rgba(0x45), 0x12233445);
+    BOOST_CHECK_EQUAL(repr::RGB_int24(0x122334).argb(), 0xff122334);
+    BOOST_CHECK_EQUAL(repr::RGB_int24(0x122334).argb(0x01), 0x01122334);
+}
+
+BOOST_AUTO_TEST_CASE( test_rgb_int12 )
+{
+    BOOST_CHECK_EQUAL(Color(0x12, 0x23, 0x34).to<repr::RGB_int12>().rgb, 0x123);
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int12(0x123)), Color(0x11, 0x22, 0x33));
+    BOOST_CHECK_EQUAL(repr::RGB_int12(0x123).rgba(), 0x123f);
+    BOOST_CHECK_EQUAL(repr::RGB_int12(0x123).rgba(0x4), 0x1234);
+    BOOST_CHECK_EQUAL(repr::RGB_int12(0x123).argb(), 0xf123);
+    BOOST_CHECK_EQUAL(repr::RGB_int12(0x123).argb(0x0), 0x0123);
+}
+
+BOOST_AUTO_TEST_CASE( test_to_rgb_int3 )
+{
+    BOOST_CHECK_EQUAL(Color(255, 0, 0).to<repr::RGB_int3>().rgb, 0b001);
+    BOOST_CHECK_EQUAL(Color(255, 255, 0).to<repr::RGB_int3>().rgb, 0b011);
+    BOOST_CHECK_EQUAL(Color(0, 255, 0).to<repr::RGB_int3>().rgb, 0b010);
+    BOOST_CHECK_EQUAL(Color(0, 255, 255).to<repr::RGB_int3>().rgb, 0b110);
+    BOOST_CHECK_EQUAL(Color(0, 0, 255).to<repr::RGB_int3>().rgb, 0b100);
+    BOOST_CHECK_EQUAL(Color(255, 0, 255).to<repr::RGB_int3>().rgb, 0b101);
+    BOOST_CHECK(Color(255, 0, 0).to<repr::RGB_int3>().bright);
+
+    BOOST_CHECK_EQUAL(Color(128, 0, 0).to<repr::RGB_int3>().rgb, 0b001);
+    BOOST_CHECK_EQUAL(Color(128, 128, 0).to<repr::RGB_int3>().rgb, 0b011);
+    BOOST_CHECK_EQUAL(Color(0, 128, 0).to<repr::RGB_int3>().rgb, 0b010);
+    BOOST_CHECK_EQUAL(Color(0, 128, 128).to<repr::RGB_int3>().rgb, 0b110);
+    BOOST_CHECK_EQUAL(Color(0, 0, 128).to<repr::RGB_int3>().rgb, 0b100);
+    BOOST_CHECK_EQUAL(Color(128, 0, 128).to<repr::RGB_int3>().rgb, 0b101);
+    BOOST_CHECK_EQUAL(Color(128, 128, 128).to<repr::RGB_int3>().rgb, 0b111);
+    BOOST_CHECK(!Color(128, 0, 0).to<repr::RGB_int3>().bright);
+
+    BOOST_CHECK_EQUAL(Color(200, 50, 87).to<repr::RGB_int3>().rgb, 0b001);
+
+    BOOST_CHECK_EQUAL(Color(255, 255, 255).to<repr::RGB_int3>().rgb, 0b111);
+    BOOST_CHECK(Color(255, 255, 255).to<repr::RGB_int3>().bright);
+    BOOST_CHECK_EQUAL(Color(136, 136, 136).to<repr::RGB_int3>().rgb, 0b111);
+    BOOST_CHECK(!Color(136, 136, 136).to<repr::RGB_int3>().bright);
+    BOOST_CHECK_EQUAL(Color(70, 70, 70).to<repr::RGB_int3>().rgb, 0b000);
+    BOOST_CHECK(Color(70, 70, 70).to<repr::RGB_int3>().bright);
+    BOOST_CHECK_EQUAL(Color(0, 0, 0).to<repr::RGB_int3>().rgb, 0b000);
+    BOOST_CHECK(!Color(0, 0, 0).to<repr::RGB_int3>().bright);
+}
+
+BOOST_AUTO_TEST_CASE( test_from_rgb_int3 )
+{
+    // TODO Test round-trip
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b000, true)), Color(70, 70, 70));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b001, true)), Color(255, 0, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b010, true)), Color(0, 255, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b011, true)), Color(255, 255, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b100, true)), Color(0, 0, 255));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b101, true)), Color(255, 0, 255));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b110, true)), Color(0, 255, 255));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b111, true)), Color(255, 255, 255));
+
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b000, false)), Color(0, 0, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b001, false)), Color(128, 0, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b010, false)), Color(0, 128, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b011, false)), Color(128, 128, 0));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b100, false)), Color(0, 0, 128));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b101, false)), Color(128, 0, 128));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b110, false)), Color(0, 128, 128));
+    BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b111, false)), Color(136, 136, 136));
+}
