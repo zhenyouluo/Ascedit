@@ -495,7 +495,7 @@ template<>
 }
 
 template<>
-    repr::RGB_int3 Color::to<repr::RGB_int3>() const
+    constexpr repr::RGB_int3 Color::to<repr::RGB_int3>() const
 {
     auto hsv = to<repr::HSVf>();
 
