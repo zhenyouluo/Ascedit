@@ -282,13 +282,13 @@ private:
 };
 
 template<>
-    constexpr void Color::from<repr::RGB>(repr::RGB value)
+    inline constexpr void Color::from<repr::RGB>(repr::RGB value)
 {
     _rgb = value;
 }
 
 template<>
-    constexpr void Color::from<repr::RGBf>(repr::RGBf value)
+    inline constexpr void Color::from<repr::RGBf>(repr::RGBf value)
 {
     _rgb = repr::RGB{
         melanolib::math::round<uint8_t>(value.r * 255),
@@ -298,7 +298,7 @@ template<>
 }
 
 template<>
-    constexpr void Color::from<repr::HSVf>(repr::HSVf value)
+    inline constexpr void Color::from<repr::HSVf>(repr::HSVf value)
 {
     using namespace melanolib::math;
 
@@ -353,7 +353,7 @@ template<>
 }
 
 template<>
-    constexpr void Color::from<repr::RGB_int24>(repr::RGB_int24 value)
+    inline constexpr void Color::from<repr::RGB_int24>(repr::RGB_int24 value)
 {
     _rgb.r = (value.rgb >> 16) & 0xff;
     _rgb.g = (value.rgb >> 8) & 0xff;
@@ -361,7 +361,7 @@ template<>
 }
 
 template<>
-    constexpr void Color::from<repr::RGB_int12>(repr::RGB_int12 value)
+    inline constexpr void Color::from<repr::RGB_int12>(repr::RGB_int12 value)
 {
     _rgb.r = (value.rgb >> 8) & 0xf;
     _rgb.r = _rgb.r | (_rgb.r << 4);
@@ -372,7 +372,7 @@ template<>
 }
 
 template<>
-    constexpr void Color::from<repr::RGB_int3>(repr::RGB_int3 value)
+    inline constexpr void Color::from<repr::RGB_int3>(repr::RGB_int3 value)
 {
     if ( value.rgb == 0b000 )
     {
@@ -393,7 +393,7 @@ template<>
 
 
 template<>
-    constexpr repr::RGBf Color::to<repr::RGBf>() const
+    inline constexpr repr::RGBf Color::to<repr::RGBf>() const
 {
     return {
         _rgb.r / 255.0f,
@@ -403,7 +403,7 @@ template<>
 }
 
 template<>
-    constexpr repr::HSVf Color::to<repr::HSVf>() const
+    inline constexpr repr::HSVf Color::to<repr::HSVf>() const
 {
     auto rgbf = to<repr::RGBf>();
 
@@ -434,7 +434,7 @@ template<>
 }
 
 template<>
-    repr::XYZ Color::to<repr::XYZ>() const
+    inline repr::XYZ Color::to<repr::XYZ>() const
 {
     auto rgbf = to<repr::RGBf>();
 
@@ -455,7 +455,7 @@ template<>
 }
 
 template<>
-    repr::Lab Color::to<repr::Lab>() const
+    inline repr::Lab Color::to<repr::Lab>() const
 {
     auto source = to<repr::XYZ>();
 
@@ -479,13 +479,13 @@ template<>
 }
 
 template<>
-    constexpr repr::RGB_int24 Color::to<repr::RGB_int24>() const
+    inline constexpr repr::RGB_int24 Color::to<repr::RGB_int24>() const
 {
     return repr::RGB_int24((_rgb.r << 16) | (_rgb.g << 8) | _rgb.b);
 }
 
 template<>
-    constexpr repr::RGB_int12 Color::to<repr::RGB_int12>() const
+    inline constexpr repr::RGB_int12 Color::to<repr::RGB_int12>() const
 {
     return repr::RGB_int12(
         ((_rgb.r & 0xf0) << 4) |
@@ -495,7 +495,7 @@ template<>
 }
 
 template<>
-    constexpr repr::RGB_int3 Color::to<repr::RGB_int3>() const
+    inline constexpr repr::RGB_int3 Color::to<repr::RGB_int3>() const
 {
     auto hsv = to<repr::HSVf>();
 

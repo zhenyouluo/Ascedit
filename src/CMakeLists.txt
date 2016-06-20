@@ -19,7 +19,8 @@ set(EXECUTABLE_NAME ascedit) # repeated otherwise kdevelop messes up
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-    main.cpp
+main.cpp
+color/cute_color.cpp
 )
 
 

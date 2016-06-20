@@ -45,4 +45,10 @@ if (BUILD_TESTING)
 
 
     melanotest(test_color)
+
+    find_package(Qt5Widgets REQUIRED)
+    melanotest(test_cute_color "${CMAKE_SOURCE_DIR}/src/color/cute_color.cpp")
+    target_link_libraries(test_cute_color Qt5::Widgets)
+
+
 endif()
