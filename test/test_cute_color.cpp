@@ -32,5 +32,21 @@ BOOST_AUTO_TEST_CASE( test_from_qt )
         from_qt(QColor::fromHsvF(0.1, 0.2, 0.3, 0.4)),
         Color(repr::HSVf(0.1, 0.2, 0.3), 0.4)
     );
+    BOOST_CHECK_EQUAL(
+        from_qt(QColor::fromHslF(0.5, 1, 0.5, 0.4)),
+        Color(repr::HSVf(0.5, 1, 1), 0.4)
+    );
+    BOOST_CHECK_EQUAL(
+        from_qt(QColor::fromCmyk(255, 255, 0, 0)),
+        Color(0, 0, 255)
+    );
     BOOST_CHECK_EQUAL( from_qt(QColor()), Color() );
+}
+
+BOOST_AUTO_TEST_CASE( test_to_qt )
+{
+    BOOST_CHECK( to_qt(Color(1, 2, 3, 4)) == QColor(1, 2, 3, 4) );
+    BOOST_CHECK( to_qt(Color()) == QColor() );
+
+    BOOST_CHECK_EQUAL( to_qrgb(Color(1, 2, 3, 4)), qRgba(1, 2, 3, 4) );
 }

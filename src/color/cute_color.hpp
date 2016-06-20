@@ -29,5 +29,17 @@ namespace color {
 
 Color from_qt(QColor color);
 
+inline QColor to_qt(Color color)
+{
+    if ( !color.valid() )
+        return QColor();
+    return QColor(color.red(), color.green(), color.blue(), color.alpha());
+}
+
+inline QRgb to_qrgb(Color color)
+{
+    return qRgba(color.red(), color.green(), color.blue(), color.alpha());
+}
+
 } // namespace color
 #endif // ASCEDIT_COLOR_CUTECOLOR_HPP
