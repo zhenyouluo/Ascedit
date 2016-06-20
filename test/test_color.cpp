@@ -267,7 +267,6 @@ BOOST_AUTO_TEST_CASE( test_to_rgb_int3 )
 
 BOOST_AUTO_TEST_CASE( test_from_rgb_int3 )
 {
-    // TODO Test round-trip
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b000, true)), Color(70, 70, 70));
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b001, true)), Color(255, 0, 0));
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b010, true)), Color(0, 255, 0));
@@ -285,4 +284,16 @@ BOOST_AUTO_TEST_CASE( test_from_rgb_int3 )
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b101, false)), Color(128, 0, 128));
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b110, false)), Color(0, 128, 128));
     BOOST_CHECK_EQUAL(Color(repr::RGB_int3(0b111, false)), Color(136, 136, 136));
+}
+
+BOOST_AUTO_TEST_CASE( test_rgb_int3_round_trip )
+{
+    for ( int j = 0; j < 2; j++ )
+        for ( int i = 0; i < 8; i++ )
+        {
+            repr::RGB_int3 rgb3(i, j);
+            auto converted = Color(rgb3).to<repr::RGB_int3>();
+            BOOST_CHECK_EQUAL(converted.rgb, rgb3.rgb);
+            BOOST_CHECK_EQUAL(converted.bright, rgb3.bright);
+        }
 }
