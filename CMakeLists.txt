@@ -57,6 +57,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 include_directories(lib/Melanolib/include)
+include_directories(lib/Color-Widgets/include)
 include_directories(src)
 add_subdirectory(src bin)
 

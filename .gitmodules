@@ -1,3 +1,6 @@
 [submodule "lib/Melanolib"]
 	path = lib/Melanolib
 	url = https://github.com/mbasaglia/Melanolib.git
+[submodule "lib/Color-Widgets"]
+	path = lib/Color-Widgets
+	url = https://github.com/mbasaglia/Qt-Color-Widgets.git
