@@ -191,6 +191,10 @@ BOOST_AUTO_TEST_CASE( test_lab )
     check(Color(255, 255, 255), repr::Lab(100, 0, 0));
 
     #undef check
+
+    BOOST_CHECK_EQUAL(Color(repr::Lab(0, 0, 0)), Color(0, 0, 0));
+    BOOST_CHECK_EQUAL(Color(repr::Lab(53.233, 80.109, 67.220)), Color(255, 0, 0));
+    BOOST_CHECK_EQUAL(Color(repr::Lab(100, 0.005, -0.01)), Color(255, 255, 255));
 }
 
 BOOST_AUTO_TEST_CASE( test_distance )

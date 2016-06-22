@@ -391,6 +391,47 @@ template<>
     }
 }
 
+template<>
+    inline void Color::from<repr::XYZ>(repr::XYZ value)
+{
+    value.x /= 100;
+    value.y /= 100;
+    value.z /= 100;
+
+    float r = value.x *  3.2406 + value.y * -1.5372 + value.z * -0.4986;
+    float g = value.x * -0.9689 + value.y *  1.8758 + value.z *  0.0415;
+    float b = value.x *  0.0557 + value.y * -0.2040 + value.z *  1.0570;
+
+    auto conv = [](float v)
+    {
+        return v > 0.0031308 ?
+            1.055 * melanolib::math::pow(v, 1 / 2.4) - 0.055 :
+            12.92 * v;
+    };
+
+    _rgb.r = melanolib::math::round<uint8_t>(conv(r) * 255);
+    _rgb.g = melanolib::math::round<uint8_t>(conv(g) * 255);
+    _rgb.b = melanolib::math::round<uint8_t>(conv(b) * 255);
+}
+
+template<>
+    inline void Color::from<repr::Lab>(repr::Lab value)
+{
+    repr::XYZ ref{95.047, 100.000, 108.883};
+
+    float y = ( value.l + 16 ) / 116;
+    float x = value.a / 500 + y;
+    float z = y - value.b / 200;
+
+    auto conv = [](float v)
+    {
+        auto v3 = melanolib::math::pow(v, 3);
+        return v3 > 0.008856 ? v3 : (v - 16.0 / 116) / 7.787;
+    };
+
+    from(repr::XYZ(conv(x) * ref.x, conv(y) * ref.y, conv(z) * ref.z));
+}
+
 
 template<>
     inline constexpr repr::RGBf Color::to<repr::RGBf>() const
