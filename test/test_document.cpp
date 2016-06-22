@@ -23,6 +23,13 @@
 
 #include "document/layer.hpp"
 
-BOOST_AUTO_TEST_CASE( test_layer )
+using namespace doc;
+
+BOOST_AUTO_TEST_CASE( test_layer_point_cmp )
 {
+    auto cmp = Layer::QPointCmp();
+    BOOST_CHECK(cmp(QPoint(10, 1), QPoint(6, 2)));
+    BOOST_CHECK(cmp(QPoint(10, 1), QPoint(11, 1)));
+    BOOST_CHECK(!cmp(QPoint(10, 1), QPoint(10, 1)));
+    BOOST_CHECK(!cmp(QPoint(10, 3), QPoint(6, 2)));
 }
