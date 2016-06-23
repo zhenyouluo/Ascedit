@@ -44,13 +44,14 @@ if (BUILD_TESTING)
     endfunction(melanotest)
 
     find_package(Qt5Widgets REQUIRED)
+    set(CMAKE_AUTOMOC ON)
 
     melanotest(test_color)
 
     melanotest(test_cute_color "${CMAKE_SOURCE_DIR}/src/color/cute_color.cpp")
     target_link_libraries(test_cute_color Qt5::Widgets)
 
-    melanotest(test_document)
+    melanotest(test_document "${CMAKE_SOURCE_DIR}/src/document/layer.hpp")
     target_link_libraries(test_document Qt5::Widgets)
 
 endif()

@@ -33,3 +33,20 @@ BOOST_AUTO_TEST_CASE( test_layer_point_cmp )
     BOOST_CHECK(!cmp(QPoint(10, 1), QPoint(10, 1)));
     BOOST_CHECK(!cmp(QPoint(10, 3), QPoint(6, 2)));
 }
+
+BOOST_AUTO_TEST_CASE( test_layer_char )
+{
+    Layer layer;
+    BOOST_CHECK_EQUAL(layer.to_string(), "");
+    layer.set_char({0, 0}, 'P');
+    BOOST_CHECK_EQUAL(layer.to_string(), "P");
+    layer.set_char({1, 1}, '!');
+    layer.set_char({2, 0}, 'o');
+    BOOST_CHECK_EQUAL(layer.to_string(), "P o\n!");
+    BOOST_CHECK_EQUAL(layer.char_at({2, 0}), 'o');
+    BOOST_CHECK_EQUAL(layer.char_at({20, 20}), ' ');
+    layer.remove_char({2, 0});
+    BOOST_CHECK_EQUAL(layer.to_string(), "P\n!");
+    layer.set_char({1, 1}, ' ');
+    BOOST_CHECK_EQUAL(layer.to_string(), "P");
+}

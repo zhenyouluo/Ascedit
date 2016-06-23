@@ -29,7 +29,7 @@
 
 namespace doc {
 
-class Layer
+class Layer : public QObject
 {
 private:
     Q_OBJECT

@@ -30,19 +30,6 @@
 namespace color {
 
 /**
- * \brief Color representation format
- */
-enum class Format
-{
-    Invalid,
-    RGB,
-    RGBf,
-    HSVf,
-    Lab,
-    XYZ,
-};
-
-/**
  * \brief Color representation namespace
  */
 namespace repr {
@@ -52,8 +39,6 @@ namespace repr {
  */
 struct RGB
 {
-    static constexpr auto format = Format::RGB;
-
     uint8_t r, g, b;
 
     constexpr RGB(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
@@ -65,8 +50,6 @@ struct RGB
  */
 struct RGBf
 {
-    static constexpr auto format = Format::RGBf;
-
     float r, g, b;
 
     constexpr RGBf(float r, float g, float b) : r(r), g(g), b(b) {}
@@ -79,8 +62,6 @@ struct RGBf
  */
 struct HSVf
 {
-    static constexpr auto format = Format::HSVf;
-
     float h, s, v;
 
     constexpr HSVf(float h, float s, float v) : h(h), s(s), v(v) {}
@@ -90,11 +71,12 @@ struct HSVf
 
 /**
  * \brief CIE L*a*b
+ * L* [0, 100]
+ * a* [-128, 127]
+ * b* [-128, 127]
  */
 struct Lab
 {
-    static constexpr auto format = Format::Lab;
-
     float l, a, b;
 
     constexpr Lab(float l, float a, float b) : l(l), a(a), b(b) {}
@@ -107,8 +89,6 @@ struct Lab
  */
 struct XYZ
 {
-    static constexpr auto format = Format::XYZ;
-
     float x, y, z;
 
     constexpr XYZ(float x, float y, float z) : x(x), y(y), z(z) {}
