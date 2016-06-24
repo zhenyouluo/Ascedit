@@ -63,6 +63,7 @@ add_subdirectory(src bin)
 
 # Tests
 set(LCOV_SOURCE_BASE_DIR "${CMAKE_SOURCE_DIR}/src")
+set(LCOV_REMOVE_PATTERN "moc_*.cpp")
 include(cmake/testing.cmake)
 add_subdirectory(test)
 

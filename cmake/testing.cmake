@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Variables:
+#   LCOV_SOURCE_BASE_DIR - Base dir to extract the sources from for coverage
+#   LCOV_REMOVE_PATTERN  - Patterns to remove from the trace file
+
 enable_testing()
 add_custom_target(tests_compile
     COMMENT "Building all tests"
@@ -31,9 +36,11 @@ if(NOT LCOV_SOURCE_BASE_DIR)
     set(LCOV_SOURCE_BASE_DIR "${CMAKE_SOURCE_DIR}")
 endif()
 
+
 add_custom_target(tests_coverage
     COMMAND cd ${CMAKE_BINARY_DIR}
     COMMAND lcov -c -d "${CMAKE_CURRENT_BINARY_DIR}" -b "${LCOV_SOURCE_BASE_DIR}" -o ${TRACEFILE} --no-external --rc lcov_branch_coverage=1
+    COMMAND lcov --remove ${TRACEFILE} ${LCOV_REMOVE_PATTERN} -o ${TRACEFILE} --rc lcov_branch_coverage=1
     COMMAND genhtml ${TRACEFILE} -o ${COVERAGE_DIR} -p "${LCOV_SOURCE_BASE_DIR}" --demangle-cpp --branch-coverage
     DEPENDS tests_run
 )

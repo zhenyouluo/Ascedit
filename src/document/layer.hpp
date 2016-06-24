@@ -47,6 +47,10 @@ public:
     /// \todo Pick the right mapping type
     typedef std::map<QPoint, char, QPointCmp> CharacterMap;
 
+    Layer(unsigned color)
+        : _color(color)
+    {}
+
     unsigned color() const
     {
         return _color;
@@ -98,7 +102,7 @@ public slots:
     {
         if ( color != _color )
         {
-            color = _color;
+            _color = color;
             emit color_changed(color);
         }
     }

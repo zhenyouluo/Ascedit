@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( test_layer_point_cmp )
 
 BOOST_AUTO_TEST_CASE( test_layer_char )
 {
-    Layer layer;
+    Layer layer(0);
     BOOST_CHECK_EQUAL(layer.to_string(), "");
     layer.set_char({0, 0}, 'P');
     BOOST_CHECK_EQUAL(layer.to_string(), "P");
@@ -49,4 +49,26 @@ BOOST_AUTO_TEST_CASE( test_layer_char )
     BOOST_CHECK_EQUAL(layer.to_string(), "P\n!");
     layer.set_char({1, 1}, ' ');
     BOOST_CHECK_EQUAL(layer.to_string(), "P");
+}
+
+BOOST_AUTO_TEST_CASE( test_layer_color )
+{
+    Layer layer(0);
+    unsigned changed_to = 0;
+    bool changed = false;
+    QObject::connect(&layer, &Layer::color_changed, [&changed_to,&changed](unsigned col){
+        changed_to = col;
+        changed = true;
+    });
+
+    BOOST_CHECK_EQUAL(layer.color(), 0);
+
+    layer.set_color(1);
+    BOOST_CHECK_EQUAL(layer.color(), 1);
+    BOOST_CHECK(changed);
+    BOOST_CHECK_EQUAL(changed_to, 1);
+
+    changed = false;
+    layer.set_color(1);
+    BOOST_CHECK(!changed);
 }
